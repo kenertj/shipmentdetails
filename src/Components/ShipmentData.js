@@ -1,28 +1,37 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material'
+import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Modal, Typography, TextField } from '@mui/material'
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import ClearIcon from '@mui/icons-material/Clear';
+import { Link, useNavigate } from 'react-router-dom'
 
-function ShipmentData() {
-    const [post, setPost] = useState([]);
+function ShipmentData(props) {
 
-    useEffect(() => {
-        axios.get("https://my.api.mockaroo.com/shipments.json?key=5e0b62d0").then((data) => {
 
-            setPost(data?.data);
-        });
-    }, []);
+    let history = useNavigate();
+
+
+
+    const handleEdit = (orderNo, date, customer, trackingNo, status, consignee) => {
+        localStorage.setItem('OrderNo', orderNo);
+        localStorage.setItem('Date', date);
+        localStorage.setItem('Customer', customer);
+        localStorage.setItem('TrackingNo', trackingNo);
+        localStorage.setItem('Status', status);
+        localStorage.setItem('Consignee', consignee);
+    }
 
     const handleDelete = (orderNumber) => {
-        const updatedOrders = [...post];
-        const index = post.findIndex((order) => order.orderNo === orderNumber);
+        const updatedOrders = [...props.post];
+        const index = props.post.findIndex((order) => order.orderNo === orderNumber);
 
         updatedOrders.splice(index, 1);
 
-        setPost(updatedOrders);
+        props.setPost(updatedOrders);
+        history('/');
 
     }
+
+
 
     return (
         <Box>
@@ -83,7 +92,7 @@ function ShipmentData() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {post.map((item) => (
+                        {props.post.map((item) => (
                             <TableRow
                                 key={item.orderNo}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -115,10 +124,12 @@ function ShipmentData() {
                                     fontSize: '0.7rem'
                                 }}>{item.consignee}</TableCell>
                                 <TableCell align="left">
-                                    <Button variant="contained" size="large" sx={{
-                                        backgroundColor: '#11cdef',
+                                    <Link to={`/edit`}>
+                                        <Button variant="contained" size="large" sx={{
+                                            backgroundColor: '#11cdef',
 
-                                    }}><AssignmentIndIcon fontSize="small" /></Button>
+                                        }} onClick={() => handleEdit(item.orderNo, item.date, item.customer, item.trackingNo, item.status, item.consignee)}><AssignmentIndIcon fontSize="small" /></Button>
+                                    </Link>
 
                                 </TableCell>
                                 <TableCell align="left"><Button variant="contained" size="large" sx={{
@@ -130,7 +141,9 @@ function ShipmentData() {
                     </TableBody>
                 </Table>
             </TableContainer>
-        </Box>
+
+
+        </Box >
     );
 }
 

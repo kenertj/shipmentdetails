@@ -1,7 +1,10 @@
 import './App.css';
-import { Box } from '@mui/material'
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import ShipmentData from './Components/ShipmentData';
+import Edit from './Components/Edit';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 const theme = createTheme({
   typography: {
@@ -12,11 +15,22 @@ const theme = createTheme({
 
 
 function App() {
+  const [post, setPost] = useState([]);
 
+  useEffect(() => {
+    axios.get("https://my.api.mockaroo.com/shipments.json?key=5e0b62d0").then((data) => {
+      console.log(data);
+      setPost(data?.data);
+    });
+  }, []);
   return (
     <ThemeProvider theme={theme}>
-
-      <ShipmentData />
+      <Router>
+        <Routes>
+          <Route path='/' element={<ShipmentData post={post} setPost={setPost} />} />
+          <Route path='/edit' element={<Edit post={post} setPost={setPost} />} />
+        </Routes>
+      </Router>
     </ ThemeProvider>
   );
 }
